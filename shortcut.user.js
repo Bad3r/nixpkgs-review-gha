@@ -6,7 +6,10 @@
 // @run-at      document-idle
 // ==/UserScript==
 
-const user = document.querySelector("header.GlobalNav button[data-login]")?.getAttribute("data-login") ?? null;
+const user =
+  document.querySelector('meta[name="user-login"]')?.content ||
+  document.querySelector("header.GlobalNav button[data-login]")?.getAttribute("data-login") ||
+  null;
 
 const repo = user ? `${user}/nixpkgs-review-gha` : null;
 
@@ -23,7 +26,7 @@ const reviewDefaults = ({
   const darwinSandbox = "relaxed";
 
   const hasRebuilds = hasLinuxRebuilds || hasDarwinRebuilds;
-  const targetsStableRelease = targetBranch.match(/-\d\d\.\d\d$/);
+  const targetsStableRelease = targetBranch?.match(/-\d\d\.\d\d$/);
 
   return {
     // "branch": "main",
@@ -56,13 +59,38 @@ const query = async (doc, sel) => {
   }
 };
 
+const queryText = sel => document.querySelector(sel)?.innerText ?? null;
+
+// GitHub serves two PR page layouts. The overview layout puts state, author and branches in the header description.
+const overviewHeader = "[data-component='PageHeader.Description']";
+// Present in both layouts even when the PR has no labels.
+const labelsContainer = "div.js-issue-labels, section[aria-label=Labels]";
+
+const getLabels = () =>
+  [
+    ...document.querySelectorAll("div.js-issue-labels > a, section[aria-label=Labels] [data-component=LabelGroup] a"),
+  ].map(x => x.innerText);
+const getRebuilds = labels => ({
+  hasLinuxRebuilds: !labels.some(l => /rebuild-linux: 0$/.test(l)),
+  hasDarwinRebuilds: !labels.some(l => /rebuild-darwin: 0$/.test(l)),
+});
+const getState = () =>
+  queryText(
+    `div[data-component=TitleArea] div[data-component=PH_LeadingVisual] span, ${overviewHeader} [data-component=StateLabel]`,
+  )
+    ?.trim()
+    .toUpperCase() ?? null;
+
+// Fields whose element is missing are null.
 const getPrDetails = pr => {
-  const title = document.querySelector(
-    "div[data-component=TitleArea] span[data-component=Text], bdi.js-issue-title.markdown-title",
-  ).innerText;
-  const targetBranch = document
-    .querySelector("[data-component=PH_Title] a[data-component=BranchName]")
-    .innerText.replace(/^NixOS:/, "");
+  const title = queryText(
+    "div[data-component=TitleArea] h1 > [data-component=Text], bdi.js-issue-title.markdown-title",
+  );
+  // The base branch comes before the head branch.
+  const targetBranch =
+    queryText(
+      `[data-component=PH_Title] a[data-component=BranchName], ${overviewHeader} a[data-component=BranchName]`,
+    )?.replace(/^NixOS:/, "") ?? null;
   const commits = [...document.querySelectorAll(".TimelineItem-body a.markdown-title[href*='/commits/']")].flatMap(
     ({ title, href }) => {
       const match = /\/NixOS\/nixpkgs\/pull\/(\d+)\/commits\/([0-9a-f]+)$/i.exec(href);
@@ -77,15 +105,15 @@ const getPrDetails = pr => {
           ];
     },
   );
-  const labels = [...document.querySelectorAll("div.js-issue-labels > a")].map(x => x.innerText);
-  const author = document.querySelector(".js-discussion > :first-child a.author").href.split("/").at(-1);
-  const authoredByMe = author === user;
-  const hasLinuxRebuilds = !labels.some(l => /rebuild-linux: 0$/.test(l));
-  const hasDarwinRebuilds = !labels.some(l => /rebuild-darwin: 0$/.test(l));
-  const state = document
-    .querySelector("div[data-component=TitleArea] div[data-component=PH_LeadingVisual] span, span.State")
-    .innerText.trim()
-    .toUpperCase();
+  const labels = getLabels();
+  const author =
+    document
+      .querySelector(`.js-discussion > :first-child a.author, ${overviewHeader} a[data-hovercard-type=user]`)
+      ?.href.split("/")
+      .at(-1) ?? null;
+  const authoredByMe = author !== null && author === user;
+  const { hasLinuxRebuilds, hasDarwinRebuilds } = getRebuilds(labels);
+  const state = getState();
 
   return {
     title,
@@ -107,6 +135,8 @@ const setupActionsPage = async () => {
   if (match === null || match[1] !== repo) return;
 
   const inputs = new URLSearchParams(match[2]);
+  // A reload after dispatch must not open the form a second time.
+  history.replaceState(history.state, "", location.pathname + location.search);
 
   (
     await query(
@@ -159,17 +189,24 @@ const setupActionsPage = async () => {
   const branch = inputs.get("branch");
   if (branch) await setBranch(branch);
 
-  [...inputs].filter(([name]) => name !== "branch").forEach(([name, value]) => setInput(name, value));
+  [...inputs]
+    .filter(([name]) => !["branch", "missing"].includes(name))
+    .forEach(([name, value]) => setInput(name, value));
+
+  const missing = inputs.get("missing");
+  if (missing) alert(`PR page elements not found: ${missing}. Check the workflow inputs before running.`);
 
   document.querySelector('details .workflow-dispatch button[type=submit], [role="dialog"] button[type=submit]').focus();
 };
 
-const setupPrPage = async () => {
+// Runs on every DOM mutation.
+const setupPrPage = () => {
   const match = /^https:\/\/github.com\/NixOS\/nixpkgs\/pull\/(\d+)([?#].*)?$/i.exec(location.href);
   if (match === null) return;
 
   const pr = match[1];
-  const actions = await query(document, "div[data-component=PH_Actions], .gh-header-show .gh-header-actions");
+  const actions = document.querySelector("div[data-component=PH_Actions], .gh-header-show .gh-header-actions");
+  if (actions === null) return;
 
   if (actions.querySelector(".run-nixpkgs-review") === null && repo) {
     const btn = document.createElement("button");
@@ -177,14 +214,25 @@ const setupPrPage = async () => {
     btn.innerText = "Run nixpkgs-review";
     actions.prepend(btn);
     btn.onclick = () => {
-      const params = new URLSearchParams({ ...reviewDefaults(getPrDetails(pr)), pr });
+      const details = getPrDetails(pr);
+      const missing = ["title", "targetBranch", "author", "state"].filter(key => details[key] === null);
+      if (document.querySelector(labelsContainer) === null) missing.push("labels");
+      const params = new URLSearchParams({ ...reviewDefaults(details), pr });
+      if (missing.length > 0) {
+        console.warn(`nixpkgs-review-gha: PR page elements not found: ${missing.join(", ")}`);
+        // Reported on the workflow page: an alert here can outlast the click's user activation, and the new tab is
+        // then blocked as a popup.
+        params.set("missing", missing.join(", "));
+      }
       window.open(`https://github.com/${repo}/actions/workflows/review.yml#dispatch:${params}`);
     };
   }
 
-  const { hasLinuxRebuilds, hasDarwinRebuilds, state } = getPrDetails(pr);
-  if ((!hasLinuxRebuilds && !hasDarwinRebuilds) || state == "MERGED") {
-    actions.querySelector(".run-nixpkgs-review").setAttribute("aria-disabled", true);
+  const runButton = actions.querySelector(".run-nixpkgs-review");
+  if (runButton !== null) {
+    const { hasLinuxRebuilds, hasDarwinRebuilds } = getRebuilds(getLabels());
+    // A hint only: the button stays clickable.
+    runButton.setAttribute("aria-disabled", (!hasLinuxRebuilds && !hasDarwinRebuilds) || getState() === "MERGED");
   }
 
   if (actions.querySelector(".goto-pr-tracker") === null) {
@@ -198,6 +246,9 @@ const setupPrPage = async () => {
       };
     }
   }
+
+  // Logged out, GitHub hides the actions bar, which is empty then.
+  actions.classList.remove("d-none");
 };
 
 new MutationObserver(setupPrPage).observe(document, { subtree: true, childList: true });
