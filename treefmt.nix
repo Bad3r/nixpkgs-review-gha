@@ -13,6 +13,7 @@
     "*/.gitignore"
     ".gitignore"
     "LICENSE"
+    "LICENSES/*.txt"
   ];
 
   formatter.nixfmt = {

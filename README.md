@@ -137,3 +137,7 @@ For example, most hosted GitHub Actions runners cannot build QEMU/KVM based NixO
 Trying to build a NixOS test on such a runner will always fail, so with this experimental feature enabled, packages that fail to build due to a missing system feature will be marked as "unsupported" and will NOT count towards review success/failure, i.e. if some packages are unsupported and all other packages have been built successfully, the PR *is* approved/merged automatically if you told nixpkgs-review-gha to do that.
 
 This feature is enabled by default. To disable it [create a new variable](../../settings/variables/actions/new) with the name `IDENTIFY_UNSUPPORTED_PACKAGES` and set its value to `0`.
+
+## License
+
+This fork is licensed under the GNU Affero General Public License, version 3 or any later version (`AGPL-3.0-or-later`). See [LICENSE](LICENSE) for the terms. The original upstream code retains its [MIT copyright and permission notice](LICENSES/upstream-MIT.txt).

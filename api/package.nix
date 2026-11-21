@@ -27,6 +27,11 @@ in
 craneLib.buildPackage (
   commonArgs
   // {
+    postInstall = ''
+      install -Dm444 ${../LICENSE} "$out/share/licenses/nrgha-api/LICENSE"
+      install -Dm444 ${../LICENSES/upstream-MIT.txt} "$out/share/licenses/nrgha-api/upstream-MIT.txt"
+    '';
+
     nativeCheckInputs = [ cacert ];
 
     nativeInstallCheckInputs = [ versionCheckHook ];
@@ -40,7 +45,7 @@ craneLib.buildPackage (
     meta = {
       description = "HTTP API server for nixpkgs-review-gha";
       homepage = "https://github.com/Bad3r/nixpkgs-review-gha";
-      license = lib.licenses.mit;
+      license = lib.licenses.agpl3Plus;
       mainProgram = "nrgha-api";
       maintainers = with lib.maintainers; [ defelo ];
     };
