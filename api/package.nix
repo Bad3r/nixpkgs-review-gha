@@ -39,7 +39,7 @@ craneLib.buildPackage (
 
     meta = {
       description = "HTTP API server for nixpkgs-review-gha";
-      homepage = "https://github.com/Defelo/nixpkgs-review-gha";
+      homepage = "https://github.com/Bad3r/nixpkgs-review-gha";
       license = lib.licenses.mit;
       mainProgram = "nrgha-api";
       maintainers = with lib.maintainers; [ defelo ];

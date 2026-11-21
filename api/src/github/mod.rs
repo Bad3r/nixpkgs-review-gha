@@ -6,7 +6,7 @@ const USER_AGENT: &str = concat!(
     env!("CARGO_PKG_NAME"),
     " ",
     env!("CARGO_PKG_VERSION"),
-    " (https://github.com/Defelo/nixpkgs-review-gha)"
+    " (https://github.com/Bad3r/nixpkgs-review-gha)"
 );
 
 #[derive(Debug, Deserialize)]

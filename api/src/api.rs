@@ -48,7 +48,7 @@ pub async fn serve(state: State) -> anyhow::Result<()> {
 }
 
 async fn index() -> Redirect {
-    Redirect::temporary("https://github.com/Defelo/nixpkgs-review-gha")
+    Redirect::temporary("https://github.com/Bad3r/nixpkgs-review-gha")
 }
 
 async fn get_client_id(state: axum::extract::State<Arc<State>>) -> String {

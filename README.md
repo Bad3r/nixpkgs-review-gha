@@ -14,7 +14,7 @@ Run [nixpkgs-review](https://github.com/Mic92/nixpkgs-review) in GitHub Actions
 - Add a "Run nixpkgs-review" shortcut to pull request pages in nixpkgs
 
 ## Setup
-1. [Fork](https://github.com/Defelo/nixpkgs-review-gha/fork) this repository.
+1. [Fork](https://github.com/Bad3r/nixpkgs-review-gha/fork) this repository.
 2. In your fork, go to the [Actions](../../actions) tab and enable GitHub Actions workflows.
 3. Set up the [optional features](#optional-features) you want as documented below. It is recommended (though not required) to at least set up [automatic self-updates](#automatic-self-updates) to keep your fork up-to-date.
 
@@ -27,6 +27,8 @@ Run [nixpkgs-review](https://github.com/Mic92/nixpkgs-review) in GitHub Actions
 ## Optional Features
 
 ### Automatic Self-Updates
+The self-update workflow rebases downstream forks onto the default branch of `Bad3r/nixpkgs-review-gha`. The update job is skipped in the source repository itself.
+
 If you want your fork to update itself on a regular basis, you need to generate a [personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
 
 1. Go to <https://github.com/settings/personal-access-tokens> and generate a new **Fine-grained token** with access to only your fork ("Repository access" > "Only select repositories") and "Read and write" permissions for both "Contents" and "Workflows".
