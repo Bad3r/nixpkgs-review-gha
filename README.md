@@ -113,7 +113,7 @@ ssh-ng://YOUR_USERNAME@darwin-build-box.nix-community.org aarch64-darwin /etc/ni
 ```
 
 ### Shortcuts on nixpkgs PR pages
-Add [`shortcut.user.js`](shortcut.user.js) as a userscript in your browser for `https://github.com/` for example using the [User JavaScript and CSS chrome extension](https://chromewebstore.google.com/detail/user-javascript-and-css/nbhcbdghjpllgmfilhnhkllmkecfmpld) or [Violentmonkey](https://violentmonkey.github.io/).
+Add [`shortcut.user.js`](shortcut.user.js) as a userscript in your browser for `https://github.com/` for example using the [Violentmonkey](https://violentmonkey.github.io/) extension.
 
 Clicking **Run nixpkgs-review** opens the workflow form in a new tab and fills it in once. After you click **Run workflow**, you can refresh that tab without the shortcut reopening the form.
 
