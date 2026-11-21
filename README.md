@@ -2,7 +2,7 @@
 
 `Bad3r/nixpkgs-review-gha` is a **soft fork** of `Defelo/nixpkgs-review-gha` with QoL improvements for running [nixpkgs-review](https://github.com/Mic92/nixpkgs-review) in GitHub Actions. Useful fixes and features from upstream will be selectively ported.
 
-The review shortcut supports both GitHub PR layouts and keeps the workflow form closed after a review starts.
+The **Run nixpkgs-review** shortcut works on both the classic pull request page and GitHub’s [pull request Overview page in public preview](https://github.blog/changelog/2026-12-05-new-pull-request-overview-page-in-public-preview/).
 
 ## Features
 - Build on `x86_64-linux`, `aarch64-linux`, `x86_64-darwin` and `aarch64-darwin`
@@ -115,7 +115,7 @@ ssh-ng://YOUR_USERNAME@darwin-build-box.nix-community.org aarch64-darwin /etc/ni
 ### Shortcuts on nixpkgs PR pages
 Add [`shortcut.user.js`](shortcut.user.js) as a userscript in your browser for `https://github.com/` for example using the [User JavaScript and CSS chrome extension](https://chromewebstore.google.com/detail/user-javascript-and-css/nbhcbdghjpllgmfilhnhkllmkecfmpld) or [Violentmonkey](https://violentmonkey.github.io/).
 
-Clicking **Run nixpkgs-review** opens the workflow form in a new tab and fills it in once. After you click **Run workflow**, you can refresh that tab without the shortcut reopening the form.
+Clicking **Run nixpkgs-review** opens a new tab with the workflow form filled in.
 
 The userscript assumes that you forked this repository to your personal account without changing its name. However, if you forked the repo to an organization instead or used a custom repo name or if you would like to use a different repo you have access to, you need to explicitly configure the userscript by updating the `repo` constant at the top of the file to point to the repository you would like to use.
 
