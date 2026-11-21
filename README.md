@@ -1,6 +1,8 @@
 # nixpkgs-review-gha
 
-`Bad3r/nixpkgs-review-gha` is an independently maintained fork of `Defelo/nixpkgs-review-gha` that runs [nixpkgs-review](https://github.com/Mic92/nixpkgs-review) in GitHub Actions. This fork adds support for both GitHub PR layouts in the review shortcut and keeps the workflow form closed after a review starts.
+`Bad3r/nixpkgs-review-gha` is a **soft fork** of `Defelo/nixpkgs-review-gha` with QoL improvements for running [nixpkgs-review](https://github.com/Mic92/nixpkgs-review) in GitHub Actions. Useful fixes and features from upstream will be selectively ported.
+
+The review shortcut supports both GitHub PR layouts and keeps the workflow form closed after a review starts.
 
 ## Features
 - Build on `x86_64-linux`, `aarch64-linux`, `x86_64-darwin` and `aarch64-darwin`
@@ -40,7 +42,7 @@ nixpkgs-review-gha can automatically post the results as a comment on the review
 The default instance will use the [@nixpkgs-review-gha](https://github.com/nixpkgs-review-gha) account to create its report comments.
 If you want to host and use your own nrgha-api instance, you can [create a new variable](../../settings/variables/actions/new) with the name `API_URL` and set its value to your base URL (without a trailing slash).
 
-Comments posted with `GH_TOKEN` or with this fork’s API identify the fork and link to the workflow commit that produced the review. The default hosted API renders comments with its own template.
+Comments posted with `GH_TOKEN` or with this fork’s API link to the fork in the report attribution. The default hosted API renders comments with its own template.
 
 If you don't want to use the API server, or if you also want to be able to automatically mark PRs as ready for review or merge them on review success, you need to generate a [personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) (note that this token is different from the one used for [automatic self-updates](#automatic-self-updates) above):
 
